@@ -1,0 +1,5 @@
+
+URL: ${request.url} | Timestamp: ${timestamp}
+URL: ${request.url} | Timestamp: ${timestamp}
+URL: / | Timestamp: Mon Aug 28 2023 19:21:16 GMT-0700 (Pacific Daylight Time)
+URL: /favicon.ico | Timestamp: Mon Aug 28 2023 19:21:16 GMT-0700 (Pacific Daylight Time)
