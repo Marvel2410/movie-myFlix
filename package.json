@@ -1,0 +1,24 @@
+{
+  "name": "movie-myflix",
+  "version": "1.0.0",
+  "description": "Building a server-side component of a movie application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Marvel2410/movie-myFlix.git"
+  },
+  "keywords": [
+    "movie",
+    "application",
+    "server-side"
+  ],
+  "author": "Stephanie Duda",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Marvel2410/movie-myFlix/issues"
+  },
+  "homepage": "https://github.com/Marvel2410/movie-myFlix#readme"
+}
