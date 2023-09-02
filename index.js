@@ -1,8 +1,10 @@
 const express = require('express');
-const app = express();
 const morgan = require('morgan');
+const app = express();
 const port = 8080;
 
+app.use(morgan('common'));//alternative middleware needs to be after this
+app.use(express.static('public'));
 
 app.get('/movies', (req, res) => {
     const topMovies = [
@@ -29,9 +31,6 @@ app.get('/', (req, res) => {
     res.send('Welcome to my movie API!');
 });
 
-app.use(express.static('public'));
-app.use(morgan('common'));//alternative middleware needs to be after this
-
-app.listen(8080, () => {
+app.listen(port, () => {
     console.log(`My first Node test server is running on Port ${port}.`);
 });
