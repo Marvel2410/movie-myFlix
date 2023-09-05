@@ -1,5 +1,5 @@
 {
-  "name": "movie-myflix,
+  "name": "movie-myflix",
   "version": "1.0.0",
   "description": "Building a server-side component of a movie application",
   "main": "index.js",
@@ -12,7 +12,7 @@
   },
   "keywords": [
     "movie",
-    "application",
+    "application", 
     "server-side"
   ],
   "author": "Stephanie Duda",
