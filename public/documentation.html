@@ -1,18 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Marvel Movies</title>
 </head>
+
 <body>
     <h1>
         Marvel Cinematic Universe
     </h1>
     <p>
-  Building a server-side component of a "movies" web aplication.  The Web appilcation will provide users
-  with access to information about different Marvel movies, directors, and plots.  Users will be able to
-  sign up, update their personal information, and create a list of their favorite Marvel movies. 
-</p>  
+        Building a server-side component of a "movies" web aplication. The Web appilcation will provide users
+        with access to information about different Marvel movies, directors, and plots. Users will be able to
+        sign up, update their personal information, and create a list of their favorite Marvel movies.
+    </p>
+    <h2>API Endpoints</h2>
+    <h3> 1.  Return a list of ALL movies to the user</h3>
+    <p>
+        <strong>Endpoint:</strong> GET /movies
+    </p>
+    <p>
+        <strong>Sample Response:</strong>
+    <pre>
+        [
+        {
+            title: 'Movie 1',
+            year: 2000,
+            director: 'Jane Doe',
+        },
+        {
+            title: 'Movie 2',
+            year: 2000,
+            director: 'Jan Doe',
+        },
+        {
+            title: 'Movie 3',
+            year: 2000,
+            director: 'J Doe',
+        },
+    ];    
+    </pre>
+    </p>
+    <h3>2. Return data about a single movie by title to the user</h3>
+    <p>
+        <strong>Title of the movie, description, genre, director, image URL, year it came out, etc.</strong>
+     </p>
+     <p>
+        <strong>Endpoint:</strong> GET /movies/Movie1
+    </p>   
+    <p>
+        <strong>Sample Response:</strong>
+    <pre>
+            {
+                "title": "Movie 1",
+                "description": "Hero saves the day",
+                "genre": "Action, Adventure, Sci-Fi",
+                "director": "Jane Doe",
+                "imageURL":"#"
+                "year": "2000"
+            }
+            </pre>
+    </p>
+
+    <h3>3. Allow new users to Register</h3>
+    <p>
+        <strong>Endpoint:</strong> POST /users
+    </p>
+    <p> This enpoint allows new users to register and create an account</p>
+    <h3>4. Allow users to add their user information (username)</h3>
+    <p>
+        <strong>Endpoint</strong> PUT /users/{userId}
+    </p>
+    <p>
+        This endpoint allows users to update their username and information
+    </p>
+    <h3>
+        5. Allow users to add a movie to their list of favorites
+    </h3>
+    <p>
+        <strong>Endpoint</strong> POST /users/{userId}/favorites
+    </p>
+    <p>
+        This endpoint allows users to add a movie to their list of favorites movies
+    </p>
+    <h3>6. Allow users to Remove a movie</h3>
+    <p><strong>Endpoint</strong> DELETE /users/{userId}/favorites/{movieId}</p>
+    <p>Allows users to remove a movie from their list of favorites</p>
+
+    <h3>7. Allow existing user to deregister</h3>
+    <p><strong>Endpoint</strong> DELETE /users/{userId}</p>
+    <p>This endpoint allows for existing users to deregister or delete their account</p>
+
 </body>
+
 </html>

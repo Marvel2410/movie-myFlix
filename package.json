@@ -4,7 +4,9 @@
   "description": "Building a server-side component of a movie application",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -12,7 +14,7 @@
   },
   "keywords": [
     "movie",
-    "application", 
+    "application",
     "server-side"
   ],
   "author": "Stephanie Duda",
@@ -22,7 +24,12 @@
   },
   "homepage": "https://github.com/Marvel2410/movie-myFlix#readme",
   "dependencies": {
+    "body-parser": "^1.20.2",
     "express": "^4.18.2",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }
