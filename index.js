@@ -1,17 +1,20 @@
 const express = require('express');
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
 const app = express();
 const port = 8080;
 const mongoose = require('mongoose');
 const Models = require('./models.js');
 
-const Movies = Models.Movie;
+const Movies = Models.movie;
 const Users = Models.User;
 
-mongoose.connect('mongodb://localhost:27017/myFlix', {userNewURLParser: true, useUnifiedTopology: true});
+mongoose.connect('mongodb://localhost:27017/myFlix', { useNewUrlParser: true, useUnifiedTopology: true});
 
 app.use(morgan('common'));//alternative middleware needs to be after this
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.json());
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
