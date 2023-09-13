@@ -92,6 +92,18 @@ app.post('/users', async (req, res) => {
       });
   });
 
+//Get all users
+app.get('/users', async (req, res) => {
+    await Users.find()
+      .then((users) => {
+        res.status(201).json(users);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      });
+  });
+
  //4.  Allow users to update their information (username)
  app.put('/users/:userId', (req, res) => {
     const userId = req.params.userId;
