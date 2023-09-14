@@ -25,7 +25,8 @@ app.get('/', (req, res) => {
     res.send('Welcome to my movie API!');
 });
 
-app.get('/movies', async (req, res) => {
+/*app.get('/movies', passport.authenticate('jwt', {session: false }), //This is my original code
+async (req, res) => {
     try {
         const movies = await Movies.find({}, 'Title Description')
             .populate('Director', 'Name')
@@ -43,6 +44,18 @@ app.get('/movies', async (req, res) => {
         console.error(error);
         res.status(500).send('Error: ' + error);
     }
+}); */
+
+app.get('/movies', passport.authenticate('jwt', { session: false }), //This is the code from excercise 2.9
+async (req, res) => {
+    await Movies.find()
+    .then((movies) => {
+        res.status(201).json(movies);
+    })
+    .catch((error) => {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+    });
 });
 
 app.get('/movies/:title', async (req, res) => {
