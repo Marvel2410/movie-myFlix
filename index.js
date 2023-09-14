@@ -5,9 +5,10 @@ const app = express();
 const port = 8080;
 const mongoose = require('mongoose');
 const Models = require('./models.js');
-
 const Movies = Models.Movie;
 const Users = Models.User;
+const Genres = Models.Genre;
+const Directors = Models.Director;
 
 mongoose.connect('mongodb://localhost:27017/dudaDB', { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -23,14 +24,37 @@ app.get('/', (req, res) => {
 
 app.get('/movies', async (req, res) => {
     try {
-        const movies = await Movies.find();
-        res.json(movies);
+        const movies = await Movies.find({}, 'Title Description')
+            .populate('Director', 'Name')
+            .populate('Genre', 'Name');
+        const formattedMovies = movies.map(movie => {
+            return {
+                Title: movie.Title,
+                Description: movie.Description,
+                Director: movie.Director.Name,
+                Genre: movie.Genre.Name
+            };
+        });
+        res.json(formattedMovies);
     } catch (error) {
         console.error(error);
         res.status(500).send('Error: ' + error);
     }
-}
-);
+});
+
+app.get('/movies/:title', async (req, res) => {
+    const {title} = req.params;
+    try {
+        const movie = await Movies.findOne({ Title: title}, 'Title');
+        if (!movie) {
+            return res.status(404).json({ message: 'Movie not found'});
+        }
+        res.json(movie.Title);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+    }
+});
 
 app.get('/genres/:name', async (req, res) => {
     const genreName = req.params.name;
@@ -46,6 +70,26 @@ app.get('/genres/:name', async (req, res) => {
         res.status(500).send('Error: ' + error);
     }
 });
+app.get('/genres', async (req, res) => {
+    try{
+        const genres = await Genres.find({}, 'Name Description');
+        res.json(genres);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+    }
+});
+
+app.get('/directors', async (req, res) => {
+    try{
+        const directors = await Directors.find({}, 'Name Bio');
+        res.json(directors);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+    }
+});
+
 app.get('/directors/:Name', async (req, res) => {
     try {
         const director = await Directors.findOne({ 'Name': req.params.Name });
@@ -108,12 +152,37 @@ app.post('/users', async (req, res) => {
         });
 });
 
+app.post('/users/:Username/favorites/:MovieID', async (req, res) => {
+    const { Username, MovieID } = req.params;
+    try {
+        const user = await Users.findOne({ Username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const movie = await Movies.findById(MovieID);
+        if (!movie) {
+            return res.status(404).json({ message: 'Movie not found' });
+        }
+        if (user.FavoriteMovies.includes(MovieID)) {
+            return res.status(400).json({ message: 'Movie already in favorites' });
+        }
+        user.FavoriteMovies.push(MovieID);
+        await user.save();
+        res.json({ message: 'Movie added to favorites successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+    }
+});
+
+
+
 //Update User Information
 app.put('/users/:Username', async (req, res) => {
     const { Username } = req.params;
     const updatedUserInfo = req.body;
     try {
-        const updatedUser = await User.findOneAndUpdate(
+        const updatedUser = await Users.updateOne(
             { Username: Username },
             updatedUserInfo,
             { new: true }
@@ -126,21 +195,30 @@ app.put('/users/:Username', async (req, res) => {
 });
 
 
-app.post('/users/:userId/favorites', (req, res) => {
-    res.json({ message: 'movie added to favorites successfully' });
-});
 
-
-app.delete('/users/:userId/favorites/:movieID', (req, res) => {
-    const userId = req.params.userId;
-    const movieId = req.params.movieId;
-    res.json({ message: 'movie removed from favorites successfully' })
+app.delete('/users/:Username/favorites/:MovieID', async (req, res) => {
+    const { Username, MovieID } = req.params;
+    try {
+        const user = await Users.findOne({ Username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (!user.FavoriteMovies.includes(MovieID)) {
+            return res.status(404).json({ message: "Movie not found in favorites" });
+        }
+        user.FavoriteMovies = user.FavoriteMovies.filter(id => id !== MovieID);
+        await user.save();
+        res.json({ message: 'Movie removed from favorites successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+    }
 });
 
 app.delete('/users/:Username', async (req, res) => {
     const { Username } = req.params;
     try {
-        const deletedUser = await User.findOneAndRemove({ Username: Username });
+        const deletedUser = await Users.findOneAndRemove({ Username: Username });
         if (!deletedUser) {
             return res.status(404).json({ message: 'User not found' });
         }
