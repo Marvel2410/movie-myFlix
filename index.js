@@ -20,23 +20,6 @@ app.use(express.static('public'));
 app.get('/', (req, res) => {
     res.send('Welcome to my movie API!');
 });
-const moviesData = [
-    {
-        title: 'Movie%201',
-        year: 2000,
-        director: 'Jane Doe',
-    },
-    {
-        title: 'Movie%202',
-        year: 2000,
-        director: 'Jan Doe',
-    },
-    {
-        title: 'Movie%203',
-        year: 2000,
-        director: 'J Doe',
-    },
-];
 
 app.get('/movies', async (req, res) => {
     try {
@@ -49,16 +32,6 @@ app.get('/movies', async (req, res) => {
 }
 );
 
-app.get('/movies/:title', (req, res) => {
-    const movieTitle = req.params.title;
-    //Find specific title within data
-    const movie = moviesData.find((m) => m.title === movieTitle);
-    if (movie) {
-        res.json(movie);
-    } else {
-        res.status(404).json({ message: 'Movie not found' });
-    }
-});
 app.get('/genres/:name', async (req, res) => {
     const genreName = req.params.name;
     try {
@@ -135,11 +108,6 @@ app.post('/users', async (req, res) => {
         });
 });
 
-app.put('/users/:userId', (req, res) => {
-    const userId = req.params.userId;
-    res.json({ message: 'User information updated successfully' });
-});
-
 //Update User Information
 app.put('/users/:Username', async (req, res) => {
     const { Username } = req.params;
@@ -181,13 +149,6 @@ app.delete('/users/:Username', async (req, res) => {
         console.error(error);
         res.status(500).send('Error: ' + error);
     }
-});
-
-
-
-app.delete('/users/:userId', (req, res) => {
-    const userId = req.params.userId;
-    res.json({ message: 'User deregistered successfully' });
 });
 
 app.listen(8080, () => {
