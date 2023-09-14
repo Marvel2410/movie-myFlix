@@ -183,26 +183,25 @@ app.post('/users', async (req, res) => {
         });
 });
 
-app.post('/users/:Username/favorites/:MovieID', passport.authenticate('jwt', { session: false }),
-async (req, res) => {
+app.post('/users/:Username/favorites/:MovieTitle', passport.authenticate('jwt', { session: false }),
+async (req, res) => { const { Username, MovieTitle } = req.params;
     //condition
-    if (req.user.Username !== req.params.Username) {
+    if (req.user.Username !== Username) {
         return res.status(400).send('Permission denied');
     }
-    const { Username, MovieID } = req.params;
     try {
         const user = await Users.findOne({ Username });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        const movie = await Movies.findById(MovieID);
+        const movie = await Movies.findOne({Title: MovieTitle });
         if (!movie) {
             return res.status(404).json({ message: 'Movie not found' });
         }
-        if (user.FavoriteMovies.includes(MovieID)) {
+        if (user.FavoriteMovies.includes(movie._id)) {
             return res.status(400).json({ message: 'Movie already in favorites' });
         }
-        user.FavoriteMovies.push(MovieID);
+        user.FavoriteMovies.push(movie._id);
         await user.save();
         res.json({ message: 'Movie added to favorites successfully' });
     } catch (error) {
