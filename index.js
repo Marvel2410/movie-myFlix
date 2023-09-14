@@ -47,23 +47,24 @@ async (req, res) => {
 }); */
 
 app.get('/movies', passport.authenticate('jwt', { session: false }), //This is the code from excercise 2.9
-async (req, res) => {
-    await Movies.find()
-    .then((movies) => {
-        res.status(201).json(movies);
-    })
-    .catch((error) => {
-        console.error(error);
-        res.status(500).send('Error: ' + error);
+    async (req, res) => {
+        await Movies.find()
+            .then((movies) => {
+                res.status(201).json(movies);
+            })
+            .catch((error) => {
+                console.error(error);
+                res.status(500).send('Error: ' + error);
+            });
     });
-});
 
-app.get('/movies/:title', async (req, res) => {
-    const {title} = req.params;
+app.get('/movies/:title', passport.authenticate('jwt', {session: false }),
+async (req, res) => {
+    const { title } = req.params;
     try {
-        const movie = await Movies.findOne({ Title: title}, 'Title');
+        const movie = await Movies.findOne({ Title: title }, 'Title');
         if (!movie) {
-            return res.status(404).json({ message: 'Movie not found'});
+            return res.status(404).json({ message: 'Movie not found' });
         }
         res.json(movie.Title);
     } catch (error) {
@@ -72,7 +73,8 @@ app.get('/movies/:title', async (req, res) => {
     }
 });
 
-app.get('/genres/:name', async (req, res) => {
+app.get('/genres/:name', passport.authenticate('jwt', {session: false}),
+async (req, res) => {
     const genreName = req.params.name;
     try {
         const genre = await Genres.findOne({ Name: genreName });
@@ -86,8 +88,9 @@ app.get('/genres/:name', async (req, res) => {
         res.status(500).send('Error: ' + error);
     }
 });
-app.get('/genres', async (req, res) => {
-    try{
+app.get('/genres', passport.authenticate('jwt', {session: false}),
+async (req, res) => {
+    try {
         const genres = await Genres.find({}, 'Name Description');
         res.json(genres);
     } catch (error) {
@@ -96,8 +99,9 @@ app.get('/genres', async (req, res) => {
     }
 });
 
-app.get('/directors', async (req, res) => {
-    try{
+app.get('/directors', passport.authenticate('jwt', {session: false}),
+async (req, res) => {
+    try {
         const directors = await Directors.find({}, 'Name Bio');
         res.json(directors);
     } catch (error) {
@@ -106,7 +110,8 @@ app.get('/directors', async (req, res) => {
     }
 });
 
-app.get('/directors/:Name', async (req, res) => {
+app.get('/directors/:Name', passport.authenticate('jwt', {session: false}),
+async (req, res) => {
     try {
         const director = await Directors.findOne({ 'Name': req.params.Name });
         if (director) {
@@ -120,7 +125,12 @@ app.get('/directors/:Name', async (req, res) => {
         res.status(500).send('Error: ' + error);
     }
 })
-app.get('/users/:Username', async (req, res) => {
+app.get('/users/:Username', passport.authenticate('jwt', {session: false}),
+async (req, res) => {
+    //Add additional condition
+    if (req.user.Username !==req.params.Username) {
+        return res.status(400).send('Permission Denied');
+    }
     await Users.findOne({ Username: req.params.Username })
         .then((user) => {
             res.json(user);
@@ -130,7 +140,12 @@ app.get('/users/:Username', async (req, res) => {
             res.status(500).send('Error: ' + err);
         });
 });
-app.get('/users', async (req, res) => {
+app.get('/users', passport.authenticate('jwt', {session: false}),
+async (req, res) => {
+    //additional condition
+    if (req.user.Username !==req.params.Username) {
+        return res.status(400).send('Permission Denied');
+    }
     await Users.find()
         .then((users) => {
             res.status(201).json(users);
@@ -168,7 +183,12 @@ app.post('/users', async (req, res) => {
         });
 });
 
-app.post('/users/:Username/favorites/:MovieID', async (req, res) => {
+app.post('/users/:Username/favorites/:MovieID', passport.authenticate('jwt', { session: false }),
+async (req, res) => {
+    //condition
+    if (req.user.Username !== req.params.Username) {
+        return res.status(400).send('Permission denied');
+    }
     const { Username, MovieID } = req.params;
     try {
         const user = await Users.findOne({ Username });
@@ -194,21 +214,31 @@ app.post('/users/:Username/favorites/:MovieID', async (req, res) => {
 
 
 //Update User Information
-app.put('/users/:Username', async (req, res) => {
-    const { Username } = req.params;
-    const updatedUserInfo = req.body;
-    try {
-        const updatedUser = await Users.updateOne(
-            { Username: Username },
-            updatedUserInfo,
-            { new: true }
-        );
-        res.json(updatedUser);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error: ' + error);
-    }
-});
+app.put('/users/:Username', passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
+        //Condition to check added here
+        if (req.user.Username !== req.params.Username) {
+            return res.status(400).send('Permission denied');
+        }
+        //End of condition
+        await Users.findOneAndUpdate({ Username: req.params.Username }, {
+            $set:
+            {
+                Username: req.body.Username,
+                Password: req.body.Password,
+                Email: req.body.Email,
+                Birthday: req.body.Birthday
+            }
+        },
+            { new: true }) // This line makes sure that the updated document is returned
+            .then((updatedUser) => {
+                res.json(updatedUser);
+            })
+            .catch((err) => {
+                console.log(err);
+                res.status(500).send('Error: ' + err);
+            })
+    });
 
 
 
