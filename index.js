@@ -171,7 +171,8 @@ app.get('/users', passport.authenticate('jwt', { session: false }),
 
 
 app.post('/users', async (req, res) => {
-    await Users.findOne({ Username: req.body.Username })
+    let hashedPassword = Users.hashPassword(req.body.Password);
+    await Users.findOne({ Username: req.body.Username }) //serach to see if a user with the username already esists
         .then((user) => {
             if (user) {
                 return res.status(400).send(req.body.Username + 'already exists');
@@ -179,7 +180,7 @@ app.post('/users', async (req, res) => {
                 Users
                     .create({
                         Username: req.body.Username,
-                        Password: req.body.Password,
+                        Password: hashedPassword,
                         Email: req.body.Email,
                         Birthday: req.body.Birthday
                     })
@@ -187,7 +188,7 @@ app.post('/users', async (req, res) => {
                     .catch((error) => {
                         console.error(error);
                         res.status(500).send('Error: ' + error);
-                    })
+                    });
             }
         })
         .catch((error) => {
