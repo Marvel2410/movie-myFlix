@@ -1,3 +1,5 @@
+const auth = require('./auth');
+const jwt = require('jsonwebtoken');
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
@@ -30,9 +32,25 @@ app.use(cors({
         return callback(null, true);
     }
 }));
-let auth = require('./auth')(app);
+
 const passport = require('passport');
 require('./passport');
+
+//only accessible to admin users
+app.get('/admin-route', passport.authenticate('jwt', {session: false}), (req, res) => {
+    //check if user id admin
+    if (req.user.role !== 'admin') {
+        return res.status(403).send('Permission Denied');
+    }
+    Users.find()
+    .then((users) => {
+        res.json(users);
+    })
+    .catch((error) => {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+    });
+});
 
 app.get('/', (req, res) => {
     res.send('Welcome to my movie API!');
@@ -169,17 +187,41 @@ app.get('/users', passport.authenticate('jwt', { session: false }),
             });
     });
 
+//adding an endpoint for all users to be able to log in
+app.post('/login', async (req, res) => {
+    const {Username, Password} = req.body;
+        try{
+            const user = await Users.findOne({ Username });
+            if (!user || !user.validatePassword(Password)) {
+                return res.status(401).json({ message: 'Invalid Credentials'});
+            }
+            const token = jwt.sign({ sub: user.Username }, 'your_secret_key', {expiresIn: '7d'});
+            return res.json({ token});
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+        }
+});
+
 
 app.post('/users',
     [
         check('Username', 'Username is required').isLength({ min: 5 }),
-        check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+        check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric('en-US', {ignore: ' '}), //Allow for spaces
         check('Password', 'Password is required').not().isEmpty(),
         check('Email', 'Email does not appear to be valid').isEmail()
     ], async (req, res) => {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(422).json({ errors: errors.array() });
+        }
+
+        //Adding user role for admin
+        const role = req.body.role || 'user'; //Default role is 'user'
+
+        //check if user is an admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).send('Permission Denied, only Admin can add user');
         }
         let hashedPassword = Users.hashPassword(req.body.Password);
         await Users.findOne({ Username: req.body.Username }) //serach to see if a user with the username already esists
@@ -192,7 +234,8 @@ app.post('/users',
                             Username: req.body.Username,
                             Password: hashedPassword,
                             Email: req.body.Email,
-                            Birthday: req.body.Birthday
+                            Birthday: req.body.Birthday,
+                            role: role //Assign role
                         })
                         .then((user) => { res.status(201).json(user) })
                         .catch((error) => {
