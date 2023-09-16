@@ -202,6 +202,9 @@ app.post('/users',
         }
 
         let hashedPassword = Users.hashPassword(req.body.Password);
+        //format birthday date
+        let formattedBirthday = moment(req.body.Birthday).format('YYYY-MM-DD');
+
         await Users.findOne({ Username: req.body.Username }) //serach to see if a user with the username already esists
             .then((user) => {
                 if (user) {
