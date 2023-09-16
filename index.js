@@ -1,5 +1,3 @@
-const auth = require('./auth');
-const jwt = require('jsonwebtoken');
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
@@ -19,8 +17,10 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
+
 const cors = require('cors');
 /*app.use(cors());*/ //this allows requests from all origins
+
 let allowedOrigins = ['http://localhost:8080', 'http://testsite.com'];
 app.use(cors({
     origin: (origin, callback) => {
@@ -36,21 +36,6 @@ app.use(cors({
 const passport = require('passport');
 require('./passport');
 
-//only accessible to admin users
-app.get('/admin-route', passport.authenticate('jwt', {session: false}), (req, res) => {
-    //check if user id admin
-    if (req.user.role !== 'admin') {
-        return res.status(403).send('Permission Denied');
-    }
-    Users.find()
-    .then((users) => {
-        res.json(users);
-    })
-    .catch((error) => {
-        console.error(error);
-        res.status(500).send('Error: ' + error);
-    });
-});
 
 app.get('/', (req, res) => {
     res.send('Welcome to my movie API!');
@@ -216,13 +201,6 @@ app.post('/users',
             return res.status(422).json({ errors: errors.array() });
         }
 
-        //Adding user role for admin
-        const role = req.body.role || 'user'; //Default role is 'user'
-
-        //check if user is an admin
-        if (req.user.role !== 'admin') {
-            return res.status(403).send('Permission Denied, only Admin can add user');
-        }
         let hashedPassword = Users.hashPassword(req.body.Password);
         await Users.findOne({ Username: req.body.Username }) //serach to see if a user with the username already esists
             .then((user) => {
