@@ -1,9 +1,9 @@
+const mongoose = require('mongoose');
+const Models = require('./models.js');
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const app = express();
-const mongoose = require('mongoose');
-const Models = require('./models.js');
 const Movies = Models.Movie;
 const Users = Models.User;
 const Genres = Models.Genre;
@@ -16,6 +16,10 @@ app.use(morgan('common'));//alternative middleware needs to be after this
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+let auth = require('./auth')(app);
+const passport = require('passport');
+require('./passport');
+
 app.use(express.static('public'));
 
 const cors = require('cors');
@@ -32,10 +36,6 @@ app.use(cors({
         return callback(null, true);
     }
 }));
-
-const passport = require('passport');
-require('./passport');
-
 
 app.get('/', (req, res) => {
     res.send('Welcome to my movie API!');
@@ -62,17 +62,16 @@ async (req, res) => {
     }
 }); */
 
-app.get('/movies', passport.authenticate('jwt', { session: false }), //This is the code from excercise 2.9
-    async (req, res) => {
-        await Movies.find()
-            .then((movies) => {
-                res.status(201).json(movies);
-            })
-            .catch((error) => {
-                console.error(error);
-                res.status(500).send('Error: ' + error);
-            });
-    });
+app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    await Movies.find()
+      .then((movies) => {
+        res.status(201).json(movies);
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+      });
+  });
 
 app.get('/movies/:title', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
@@ -172,23 +171,6 @@ app.get('/users', passport.authenticate('jwt', { session: false }),
             });
     });
 
-//adding an endpoint for all users to be able to log in
-app.post('/login', async (req, res) => {
-    const {Username, Password} = req.body;
-        try{
-            const user = await Users.findOne({ Username });
-            if (!user || !user.validatePassword(Password)) {
-                return res.status(401).json({ message: 'Invalid Credentials'});
-            }
-            const token = jwt.sign({ sub: user.Username }, 'your_secret_key', {expiresIn: '7d'});
-            return res.json({ token});
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Error: ' + error);
-        }
-});
-
-
 app.post('/users',
     [
         check('Username', 'Username is required').isLength({ min: 5 }),
@@ -203,8 +185,6 @@ app.post('/users',
 
         let hashedPassword = Users.hashPassword(req.body.Password);
         //format birthday date
-        let formattedBirthday = moment(req.body.Birthday).format('YYYY-MM-DD');
-
         await Users.findOne({ Username: req.body.Username }) //serach to see if a user with the username already esists
             .then((user) => {
                 if (user) {

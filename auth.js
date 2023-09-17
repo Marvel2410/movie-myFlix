@@ -13,15 +13,6 @@ let generateJWTToken = (user) => {
     });
 }
 
-//Admin middleware
-function isAdmin(req, res, next) {
-    if(req.user && req.user.role === 'admin') {
-        return next(); //user is an admin, proceed to next
-    } else {
-        return res.status(403).send('Access denied, user not admin role.'); //User is not an admin
-    }
-}
-
 /*POST login */
 module.exports = (router) => {
     router.post('/login', (req, res) => {
@@ -42,6 +33,3 @@ module.exports = (router) => {
         })(req, res);
     });
 }
-
-
-module.exports.isAdmin = isAdmin;
