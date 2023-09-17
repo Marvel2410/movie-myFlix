@@ -58,7 +58,7 @@ app.get('/movies', async (req, res) => {
       }
   });
 
-app.get('/movies/:title', async (req, res) => {
+  app.get('/movies/:title', async (req, res) => {
     const { title } = req.params;
     try {
         const movie = await Movies.findOne({ Title: title });
@@ -130,11 +130,19 @@ app.get('/users/:Username', async (req, res) => {
     try {
         const user = await Users.findOne({ Username: req.params.Username });
         if (user) {
+            // Get the titles of favorite movies
+            const favoriteMovies = await Promise.all(user.FavoriteMovies.map(async movieID => {
+                const movie = await Movies.findById(movieID, 'Title');
+                return movie.Title;
+            }));
+            
             //Birthday re-format
             const formattedUser = {
                 ...user._doc,
-                Birthday: user.Birthday.toISOString().split('T')[0]
+                Birthday: user.Birthday.toISOString().split('T')[0],
+                FavoriteMovies: favoriteMovies
             };
+            
             res.json(formattedUser);
         } else {
             res.status(404).json({ message: 'User not found' });
@@ -148,12 +156,17 @@ app.get('/users/:Username', async (req, res) => {
 app.get('/users', async (req, res) => {
     try {
         const users = await Users.find();
-        const formattedUsers = users.map(user => {
+        const formattedUsers = await Promise.all(users.map(async user => {
+            const favoriteMovies = await Promise.all(user.FavoriteMovies.map(async movieID => {
+                const movie = await Movies.findById(movieID, 'Title');
+                return movie.Title;
+            }));
             return {
                 ...user._doc,
-                Birthday: user.Birthday.toISOString().split('T')[0]
+                Birthday: user.Birthday.toISOString().split('T')[0],
+                FavoriteMovies: favoriteMovies
             };
-        });
+        }));
         res.json(formattedUsers);
     } catch (err) {
         console.error(err);
@@ -182,7 +195,30 @@ app.post('/users', async (req, res) => {
     }
   });
 
-  app.post('/users/:Username/favorites/:MovieTitle', async (req, res) => {
+app.post('/users/:Username/favorites/:MovieTitle', async (req, res) => {
+    const { Username, MovieTitle } = req.params;
+    try {
+        const user = await Users.findOne({ Username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const movie = await Movies.findOne({ Title: MovieTitle });
+        if (!movie) {
+            return res.status(404).json({ message: 'Movie not found' });
+        }
+        if (user.FavoriteMovies.some(m => m.movieID.equals(movie._id))) {
+            return res.status(400).json({ message: 'Movie already in favorites' });
+        }
+        user.FavoriteMovies.push({ movieID: movie._id });
+        await user.save();
+        res.json({ message: `Movie '${MovieTitle}' added to favorites successfully` });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+    }
+});
+
+app.put('/users/:Username/favorites/:MovieTitle', async (req, res) => {
     const { Username, MovieTitle } = req.params;
     try {
         const user = await Users.findOne({ Username });
@@ -198,7 +234,8 @@ app.post('/users', async (req, res) => {
         }
         user.FavoriteMovies.push(movie._id);
         await user.save();
-        res.json({ message: `Movie added to favorites successfully` });
+        const movieDetails = await Movies.findById(movie._id, 'Title'); // Get the title of the movie
+        res.json({ message: `Movie '${movieDetails.Title}' added to favorites successfully` });
     } catch (error) {
         console.error(error);
         res.status(500).send('Error: ' + error);
@@ -210,6 +247,7 @@ app.put('/users/:Username', async (req, res) => {
         $set:
         {
             Username: req.body.Username,
+            Password: req.body.Password,
             Email: req.body.Email,
             Birthday: req.body.Birthday
         }
@@ -224,24 +262,29 @@ app.put('/users/:Username', async (req, res) => {
         })
 });
 
-app.delete('/users/:Username/favorites/:MovieID', async (req, res) => {
-    const { Username, MovieID } = req.params;
+app.delete('/users/:Username/favorites/:MovieTitle', async (req, res) => {
+    const { Username, MovieTitle } = req.params;
     try {
         const user = await Users.findOne({ Username });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        if (!user.FavoriteMovies.includes(MovieID)) {
+        const movie = await Movies.findOne({ Title: MovieTitle });
+        if (!movie) {
+            return res.status(404).json({ message: 'Movie not found' });
+        }
+        if (!user.FavoriteMovies.includes(movie._id)) {
             return res.status(404).json({ message: "Movie not found in favorites" });
         }
-        user.FavoriteMovies = user.FavoriteMovies.filter(id => id !== MovieID);
+        user.FavoriteMovies = user.FavoriteMovies.filter(id => id.toString() !== movie._id.toString());
         await user.save();
-        res.json({ message: 'Movie removed from favorites successfully' });
+        res.json({ message: `Movie '${movie.Title}' removed from favorites successfully` });
     } catch (error) {
         console.error(error);
         res.status(500).send('Error: ' + error);
     }
 });
+
 
 app.delete('/users/:Username', async (req, res) => {
     const { Username } = req.params;
