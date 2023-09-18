@@ -11,7 +11,9 @@ const Directors = Models.Director;
 
 const{ check, validationResult } = require('express-validator');
 
-mongoose.connect('mongodb://localhost:27017/dudaDB', { useNewUrlParser: true, useUnifiedTopology: true });
+//mongoose.connect('mongodb://localhost:27017/dudaDB', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb+srv://stephanieduda24:Ronanlove24@dudascluster.y6f9wi2.mongodb.net/myFlixDB?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
+
 
 app.use(morgan('common'));//alternative middleware needs to be after this
 app.use(express.json());
