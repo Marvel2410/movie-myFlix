@@ -68,14 +68,26 @@ app.get('/movies/:title', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
         const { title } = req.params;
         try {
-            const movie = await Movies.findOne({ Title: title });
+            const movie = await Movies.findOne({ Title: title })
+                .populate('Genre', 'Name Description')
+                .populate('Director', 'Name Bio');
             if (!movie) {
                 return res.status(404).json({ message: 'Movie not found' });
             }
             res.json({
                 Title: movie.Title,
                 id: movie._id,
-                Description: movie.Description
+                Description: movie.Description,
+                Genre: {
+                    Name: movie.Genre.Name,
+                    Description: movie.Genre.Description
+                },
+                Director: {
+                    Name: movie.Director.Name,
+                    Bio: movie.Director.Bio
+                },
+                ImagePath: movie.ImagePath,
+                Featured: movie.Featured
             });
         } catch (error) {
             console.error(error);
@@ -177,6 +189,38 @@ app.get('/users/:Username', passport.authenticate('jwt', { session: false }),
             });
     });
 
+app.get('/users/:Username/favorites', passport.authenticate('jwt', { session: false}),
+    async (req,res) => {
+        if(req.user.Username !==req.params.Username) {
+            return res.status(400).send('Permission denied');
+        }
+        try {
+            const user = await Users.findOne({ Username: req.params.Username}).populate('FavoriteMovies');
+            if(!user) {
+                return res.status(400).json({ message: 'User not Found'});
+            }
+            const favoriteMovies = user.FavoriteMovies.map(movie => ({
+                Title: movie.Title,
+                id: movie._id,
+                Description: movie.Description,
+                Genre: {
+                    Name: movie.Genre.Name,
+                    Description: movie.Genre.Description
+                },
+                Director: {
+                    Name: movie.Director.Name,
+                    Bio: movie.Director.Bio
+                },
+                ImagePath: movie.ImagePath,
+                Featured: movie.Featured
+            }));
+            res.json(favoriteMovies);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Error: ' +error);
+        }
+    });
+
 app.get('/users', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
         if (req.user) {
@@ -203,20 +247,13 @@ app.get('/users', passport.authenticate('jwt', { session: false }),
         }
     });
 
-//app.post to not have authentication so new users can join
 app.post('/users', 
-// Validation logic here for request
-  //you can either use a chain of methods like .not().isEmpty()
-  //which means "opposite of isEmpty" in plain english "is not empty"
-  //or use .isLength({min: 5}) which means
-  //minimum value of 5 characters are only allowed
   [
     check('Username', 'Username is required').isLength({min: 5}),
     check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric('en-US', {ignore: ' '}),
     check('Password', 'Password is required').not().isEmpty(),
     check('Email', 'Email does not appear to be valid').isEmail()
   ], async (req, res) => {
-    // check the validation object for errors
     let errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -249,38 +286,12 @@ app.post('/users',
         res.status(500).send('Error: ' + error);
       });
   });
-//Do not need app.post for favorites, but holding on to it for now.  
-/*app.post('/users/:Username/favorites/:MovieTitle', passport.authenticate('jwt', { session: false }),
-async (req, res) => {
-    const { Username, MovieTitle } = req.params;
-    try {
-        const user = await Users.findOne({ Username });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        const movie = await Movies.findOne({ Title: MovieTitle });
-        if (!movie) {
-            return res.status(404).json({ message: 'Movie not found' });
-        }
-        if (user.FavoriteMovies.some(m => m.movieID.equals(movie._id))) {
-            return res.status(400).json({ message: 'Movie already in favorites' });
-        }
-        user.FavoriteMovies.push({ movieID: movie._id });
-        await user.save();
-        res.json({ message: `Movie '${MovieTitle}' added to favorites successfully` });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error: ' + error);
-    }
-});*/
 
-app.put('/users/:Username/favorites/:MovieTitle', passport.authenticate('jwt', { session: false }),
+app.post('/users/:Username/favorites/:MovieTitle', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
-        // CONDITION TO CHECK ADDED HERE
         if (req.user.Username !== req.params.Username) {
             return res.status(400).send('Permission denied');
         }
-        // CONDITION ENDS
         const { Username, MovieTitle } = req.params;
         try {
             const user = await Users.findOne({ Username });
@@ -296,7 +307,7 @@ app.put('/users/:Username/favorites/:MovieTitle', passport.authenticate('jwt', {
             }
             user.FavoriteMovies.push(movie._id);
             await user.save();
-            const movieDetails = await Movies.findById(movie._id, 'Title'); // Get the title of the movie
+            const movieDetails = await Movies.findById(movie._id, 'Title'); 
             res.json({ message: `Movie '${movieDetails.Title}' added to favorites successfully` });
         } catch (error) {
             console.error(error);
@@ -306,11 +317,9 @@ app.put('/users/:Username/favorites/:MovieTitle', passport.authenticate('jwt', {
 
 app.put('/users/:Username', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
-        // CONDITION TO CHECK ADDED HERE
         if (req.user.Username !== req.params.Username) {
             return res.status(400).send('Permission denied');
         }
-        // CONDITION ENDS
         await Users.findOneAndUpdate({ Username: req.params.Username }, {
             $set:
             {
@@ -320,7 +329,7 @@ app.put('/users/:Username', passport.authenticate('jwt', { session: false }),
                 Birthday: req.body.Birthday
             }
         },
-            { new: true }) // This line makes sure that the updated document is returned
+            { new: true })
             .then((updatedUser) => {
                 res.json(updatedUser);
             })

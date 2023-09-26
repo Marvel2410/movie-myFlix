@@ -9,87 +9,185 @@
 
 <body>
     <h1>
-        Favorite Movies of All Time
+        Favorite Movies App
     </h1>
     <p>
         Building a server-side component of a "movies" web aplication. The Web appilcation will provide users
         with access to information about some of my favorite movies, directors, and plots. Users will be able to
-        sign up, update their personal information, and create a list of their own favorite  movies.
+        sign up, update their personal information, and create a list of their own favorite movies.
     </p>
     <h2>API Endpoints</h2>
-    <h3> 1.  Return a list of ALL movies to the user</h3>
+
+    
+    <h3> 1. Signup </h3>
+    <p>
+        <strong>Endpoint:</strong> POST /users
+    </p>
+    <p>Registers a new user account</p>
+    <p><strong>Example Request Body:</strong></p>
+    <pre>
+{
+    "Username": "newUser",
+    "Password": "password123"
+    "Email": "newuser@example.com",
+    "Birthday": "1990-01-01"
+}
+</pre>
+    <p><strong>Sample Response:</strong></p>
+    <pre>
+    {
+    "_id": "generatedId",
+    "Username": "newUser",
+    "Email": "newuser@example.com",
+    "Birthday": "1990-01-01",
+    "FavoriteMovies": []
+    }
+</pre>
+
+    <h3> 2. Login </h3>
+    <p>
+        <strong>Endpoing:</strong> POST /login
+    </p>
+    <p> Logs in an existing user.</p>
+    <p><strong>Example Request Body:</strong></p>
+    <pre>
+    {
+        "Username": "existingUser",
+        "Password": "password123"
+    }
+</pre>
+    <p>
+        <strrong>Sample Response:</strrong>
+    </p>
+    <pre>
+    {
+        "token:" "generatedToken"
+    }
+</pre>
+
+    <h3> 3. View Movies </h3>
     <p>
         <strong>Endpoint:</strong> GET /movies
     </p>
-    <p>
-        <strong>Sample Response:</strong>
+    <p> Shows all movies and information within database</p>
+    <p><strong>Sample Response:</strong></p>
     <pre>
-        [
-        {
-            Title: 'Movie 1',
-            description: 'Movie description',
-            Genre:Name of genre
-            Director: Name of Director
-        },
-        {
-            Title: 'Movie 2',
-            description: 'Movie description',
-            Genre:Name of genre
-            Director: Name of Director
-        },
-        {
-            Title: 'Movie 3',
-            description: 'Movie description',
-            Genre:Name of genre
-            Director: Name of Director
-        },
-    ];    
-    </pre>
-    </p>
-    <h3>2. Return data about a single movie by title to the user</h3>
+    {
+        "Title": "Movie 1",
+        "id": "generatedId1"
+        "Description": "Description of Movie 1",
+        "Genre": "Genre Name",
+        "Director": "Director Name",
+        "ImagePath": "path/to/image",
+        "Featured": true/false
+    }
+    {
+    "Title": "Movie 2",
+    "id": "generatedId2"
+    "Description": "Description of Movie 2",
+    "Genre": "Genre Name",
+    "Director": "Director Name",
+    "ImagePath": "path/to/image",
+    "Featured": true/false
+}
+...etc.
+
+</pre>
+
+    <h3>4. View a specific movie's details</h3>
     <p>
-        <strong>Title of the movie, description, genre, director, image URL, year it came out, etc.</strong>
-     </p>
-     <p>
-        <strong>Endpoint:</strong> GET /movies/Movie1
-    </p>   
+        <strong>Endpoint:</strong> GET /movies/Movietitle
+    </p>
     <p>
         <strong>Sample Response:</strong>
     <pre>
             {
-                "title": "Movie 1",
+                Title: Movie 1,
+                id: generatedId1,
+                Description: Description of movie 1,
+                Genre: {
+                    Name: Genre of movie 1,
+                    Description: Description of Genre
+                },
+                Director: {
+                    Name: Duirector of movie 1,
+                    Bio: Director Bio
+                },
+                ImagePath: path to image,
+                Featured: true/false
             }
+            ...etc
             </pre>
     </p>
 
-    <h3>3. Allow new users to Register</h3>
+    <h3>5. Add a movie to your favorites</h3>
     <p>
-        <strong>Endpoint:</strong> POST /users
-    </p>
-    <p> This enpoint allows new users to register and create an account</p>
-    <h3>4. Allow users to add their user information (username)</h3>
-    <p>
-        <strong>Endpoint</strong> PUT /users/{userId}
-    </p>
-    <p>
-        This endpoint allows users to update their username and information
-    </p>
-    <h3>
-        5. Allow users to add a movie to their list of favorites
-    </h3>
-    <p>
-        <strong>Endpoint</strong> POST /users/{userId}/favorites
+        <strong>Endpoint</strong> POST /users/{Username}/favorites
     </p>
     <p>
         This endpoint allows users to add a movie to their list of favorites movies
     </p>
-    <h3>6. Allow users to Remove a movie</h3>
-    <p><strong>Endpoint</strong> DELETE /users/{userId}/favorites/{movieId}</p>
-    <p>Allows users to remove a movie from their list of favorites</p>
+    <p>
+        <strong>Example Request Body:</strong>
+    </p>
+    <pre>
+      {
+        "MovieTitle": "Movie Title"
+      }  
+    </pre>
 
-    <h3>7. Allow existing user to deregister</h3>
-    <p><strong>Endpoint</strong> DELETE /users/{userId}</p>
-    <p>This endpoint allows for existing users to deregister or delete their account</p>
+
+    <h3>6. View Favorite Movies</h3>
+    <p><strong>Endpoint: </strong> GET /users/{Username}/favorites</p>
+    <p>Returns a list of favorite movies for a specific user.</p>
+    <p><strong>Sample Response:</strong></p>
+    <pre>
+        {
+            Title: Movie 1,
+            id: generatedId1,
+            Description: Description of Movie 1,
+            Genre: {
+                Name: Genre name of movie 1,
+                Descritpion: Desription of Genre
+            },
+            Director: {
+                Name" Director of movie 1,
+                Bio: Biography of director
+            }
+        }
+        ...etc
+    </pre>
+
+    <h3> 7. Remove movie from favorites</h3>
+    <p><strong>Enpoint:</strong> DELETE /users/Username/favorites/movietitle</p>
+    <p>Removes a movie from the list of favorite movies for a user.</p>
+    <p><strong>Sample Response:</strong></p>
+    <pre>
+{ message: Movie 'title' removed from favorites sucessfully}
+    </pre>
+
+    <h3> 8. Change/Update profile data (name/email/etc) </h3>
+    <p><strong>Enpoint:</strong> PUT /users/Username</p>
+    <p> Allows a user to update their profile information</p>
+    <p><strong>Example Request Body:</strong></p>
+    <pre>
+        {
+        "Username": "NewUsername",
+        "Password": "NewPassword",
+        "Email": "newemail@email.com",
+        "Birthday": "YYYY-MM-DD"
+        }
+    </pre>
+    <p><strong>Sample Response:</strong>Based on what you changed/updated</p>
+    <pre>
+    {
+        "Username": "NewUsername",
+    "Email": "newemail@example.com",
+    "Birthday": "YYYY-MM-DD",
+    "FavoriteMovies": [...]
+    ...etc.
+    }
+    </pre>
 
 </body>
 
