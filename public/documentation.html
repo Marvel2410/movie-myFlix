@@ -49,11 +49,11 @@
         <strong>Endpoing:</strong> POST /login
     </p>
     <p> Logs in an existing user.</p>
-    <p><strong>Example Request Body:</strong></p>
+    <p><strong>Example Request Into Params:</strong></p>
     <pre>
     {
-        "Username": "existingUser",
-        "Password": "password123"
+        KEY: Username VALUE: existingUser
+        KEY: Password VALUE: password123
     }
 </pre>
     <p>
@@ -61,6 +61,15 @@
     </p>
     <pre>
     {
+            "user": {
+                "_id": "generated id",
+                "Username": "username",
+                "Password": "hashed password",
+                "Email": "newuser@example.com",
+                "Birthday": "1990-01-01T00:00:00.000Z",
+                "FavoriteMovies": [],
+                "__v": 0
+            },
         "token:" "generatedToken"
     }
 </pre>
@@ -122,17 +131,17 @@
 
     <h3>5. Add a movie to your favorites</h3>
     <p>
-        <strong>Endpoint</strong> POST /users/{Username}/favorites
+        <strong>Endpoint</strong> POST /users/{Username}/favorites/MovieTitletoaddtofavorites
     </p>
     <p>
         This endpoint allows users to add a movie to their list of favorites movies
     </p>
     <p>
-        <strong>Example Request Body:</strong>
+        <strong>Example Request:</strong>
     </p>
     <pre>
       {
-        "MovieTitle": "Movie Title"
+        /favorites/movietitletoadd
       }  
     </pre>
 
