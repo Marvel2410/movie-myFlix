@@ -2,30 +2,30 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Favorite Movies</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Favorite Movies</title>
 </head>
 
 <body>
-    <h1>
-        Favorite Movies App
-    </h1>
-    <p>
-        Building a server-side component of a "movies" web aplication. The Web appilcation will provide users
-        with access to information about some of my favorite movies, directors, and plots. Users will be able to
-        sign up, update their personal information, and create a list of their own favorite movies.
-    </p>
-    <h2>API Endpoints</h2>
+  <h1>
+    Favorite Movies App
+  </h1>
+  <p>
+    Building a server-side component of a "movies" web aplication. The Web appilcation will provide users
+    with access to information about some of my favorite movies, directors, and plots. Users will be able to
+    sign up, update their personal information, and create a list of their own favorite movies.
+  </p>
+  <h2>API Endpoints</h2>
 
-    
-    <h3> 1. Signup </h3>
-    <p>
-        <strong>Endpoint:</strong> POST /users
-    </p>
-    <p>Registers a new user account</p>
-    <p><strong>Example Request Body:</strong></p>
-    <pre>
+
+  <h3> 1. Signup </h3>
+  <p>
+    <strong>Endpoint:</strong> POST /users
+  </p>
+  <p>Registers a new user account</p>
+  <p><strong>Example Request Body:</strong></p>
+  <pre>
 {
     "Username": "newUser",
     "Password": "password123"
@@ -33,8 +33,8 @@
     "Birthday": "1990-01-01"
 }
 </pre>
-    <p><strong>Sample Response:</strong></p>
-    <pre>
+  <p><strong>Sample Response:</strong></p>
+  <pre>
     {
     "_id": "generatedId",
     "Username": "newUser",
@@ -44,22 +44,22 @@
     }
 </pre>
 
-    <h3> 2. Login </h3>
-    <p>
-        <strong>Endpoing:</strong> POST /login
-    </p>
-    <p> Logs in an existing user.</p>
-    <p><strong>Example Request Into Params:</strong></p>
-    <pre>
+  <h3> 2. Login </h3>
+  <p>
+    <strong>Endpoing:</strong> POST /login
+  </p>
+  <p> Logs in an existing user.</p>
+  <p><strong>Example Request Into Params:</strong></p>
+  <pre>
     {
         KEY: Username VALUE: existingUser
         KEY: Password VALUE: password123
     }
 </pre>
-    <p>
-        <strrong>Sample Response:</strrong>
-    </p>
-    <pre>
+  <p>
+    <strrong>Sample Response:</strrong>
+  </p>
+  <pre>
     {
             "user": {
                 "_id": "generated id",
@@ -74,13 +74,13 @@
     }
 </pre>
 
-    <h3> 3. View Movies </h3>
-    <p>
-        <strong>Endpoint:</strong> GET /movies
-    </p>
-    <p> Shows all movies and information within database</p>
-    <p><strong>Sample Response:</strong></p>
-    <pre>
+  <h3> 3. View Movies </h3>
+  <p>
+    <strong>Endpoint:</strong> GET /movies
+  </p>
+  <p> Shows all movies and information within database</p>
+  <p><strong>Sample Response:</strong></p>
+  <pre>
     {
         "Title": "Movie 1",
         "id": "generatedId1"
@@ -103,13 +103,13 @@
 
 </pre>
 
-    <h3>4. View a specific movie's details</h3>
-    <p>
-        <strong>Endpoint:</strong> GET /movies/Movietitle
-    </p>
-    <p>
-        <strong>Sample Response:</strong>
-    <pre>
+  <h3>4. View a specific movie's details</h3>
+  <p>
+    <strong>Endpoint:</strong> GET /movies/Movietitle
+  </p>
+  <p>
+    <strong>Sample Response:</strong>
+  <pre>
             {
                 Title: Movie 1,
                 id: generatedId1,
@@ -127,30 +127,30 @@
             }
             ...etc
             </pre>
-    </p>
+  </p>
 
-    <h3>5. Add a movie to your favorites</h3>
-    <p>
-        <strong>Endpoint</strong> POST /users/{Username}/favorites/MovieTitletoaddtofavorites
-    </p>
-    <p>
-        This endpoint allows users to add a movie to their list of favorites movies
-    </p>
-    <p>
-        <strong>Example Request:</strong>
-    </p>
-    <pre>
+  <h3>5. Add a movie to your favorites</h3>
+  <p>
+    <strong>Endpoint</strong> POST /users/{Username}/favorites/MovieTitletoaddtofavorites
+  </p>
+  <p>
+    This endpoint allows users to add a movie to their list of favorites movies
+  </p>
+  <p>
+    <strong>Example Request:</strong>
+  </p>
+  <pre>
       {
         /favorites/movietitletoadd
       }  
     </pre>
 
 
-    <h3>6. View Favorite Movies</h3>
-    <p><strong>Endpoint: </strong> GET /users/{Username}/favorites</p>
-    <p>Returns a list of favorite movies for a specific user.</p>
-    <p><strong>Sample Response:</strong></p>
-    <pre>
+  <h3>6. View Favorite Movies</h3>
+  <p><strong>Endpoint: </strong> GET /users/{Username}/favorites</p>
+  <p>Returns a list of favorite movies for a specific user.</p>
+  <p><strong>Sample Response:</strong></p>
+  <pre>
         {
             Title: Movie 1,
             id: generatedId1,
@@ -167,19 +167,19 @@
         ...etc
     </pre>
 
-    <h3> 7. Remove movie from favorites</h3>
-    <p><strong>Enpoint:</strong> DELETE /users/Username/favorites/movietitle</p>
-    <p>Removes a movie from the list of favorite movies for a user.</p>
-    <p><strong>Sample Response:</strong></p>
-    <pre>
+  <h3> 7. Remove movie from favorites</h3>
+  <p><strong>Enpoint:</strong> DELETE /users/Username/favorites/movietitle</p>
+  <p>Removes a movie from the list of favorite movies for a user.</p>
+  <p><strong>Sample Response:</strong></p>
+  <pre>
 { message: Movie 'title' removed from favorites sucessfully}
     </pre>
 
-    <h3> 8. Change/Update profile data (name/email/etc) </h3>
-    <p><strong>Enpoint:</strong> PUT /users/Username</p>
-    <p> Allows a user to update their profile information</p>
-    <p><strong>Example Request Body:</strong></p>
-    <pre>
+  <h3> 8. Change/Update profile data (name/email/etc) </h3>
+  <p><strong>Enpoint:</strong> PUT /users/Username</p>
+  <p> Allows a user to update their profile information</p>
+  <p><strong>Example Request Body:</strong></p>
+  <pre>
         {
         "Username": "NewUsername",
         "Password": "NewPassword",
@@ -187,8 +187,8 @@
         "Birthday": "YYYY-MM-DD"
         }
     </pre>
-    <p><strong>Sample Response:</strong>Based on what you changed/updated</p>
-    <pre>
+  <p><strong>Sample Response:</strong>Based on what you changed/updated</p>
+  <pre>
     {
         "Username": "NewUsername",
     "Email": "newemail@example.com",
