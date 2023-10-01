@@ -9,10 +9,10 @@ const app = express();
 const Genres = Models.Genre;
 const Directors = Models.Director;
 
-const{ check, validationResult } = require('express-validator');
+const { check, validationResult } = require('express-validator');
 
 //mongoose.connect('mongodb://localhost:27017/dudaDB', { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.connect( process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
 app.use(morgan('common'));//alternative middleware needs to be after this
@@ -43,57 +43,55 @@ app.get('/', (req, res) => {
     res.send('Welcome to my movie API!');
 });
 
-app.get('/movies', passport.authenticate('jwt', { session: false }),
-    async (req, res) => {
-        try {
-            const movies = await Movies.find({}, 'Title Description Genere Director ImagePath Featured')
-                .populate('Genre', 'Name')
-                .populate('Director', 'Name');
-            res.status(201).json(movies.map(movie => ({
-                Title: movie.Title,
-                id: movie._id,
-                Description: movie.Description,
-                Genre: movie.Genre.Name,
-                Director: movie.Director.Name,
-                ImagePath: movie.ImagePath,
-                Featured: movie.Featured
-            })));
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Error: ' + error);
-        }
-    });
+app.get('/movies', async (req, res) => {
+    try {
+        const movies = await Movies.find({}, 'Title Description Genere Director ImagePath Featured')
+            .populate('Genre', 'Name')
+            .populate('Director', 'Name');
+        res.status(201).json(movies.map(movie => ({
+            Title: movie.Title,
+            id: movie._id,
+            Description: movie.Description,
+            Genre: movie.Genre.Name,
+            Director: movie.Director.Name,
+            ImagePath: movie.ImagePath,
+            Featured: movie.Featured
+        })));
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+    }
+});
 
-app.get('/movies/:title', passport.authenticate('jwt', { session: false }),
-    async (req, res) => {
-        const { title } = req.params;
-        try {
-            const movie = await Movies.findOne({ Title: title })
-                .populate('Genre', 'Name Description')
-                .populate('Director', 'Name Bio');
-            if (!movie) {
-                return res.status(404).json({ message: 'Movie not found' });
-            }
-            res.json({
-                Title: movie.Title,
-                id: movie._id,
-                Description: movie.Description,
-                Genre: {
-                    Name: movie.Genre.Name,
-                    Description: movie.Genre.Description
-                },
-                Director: {
-                    Name: movie.Director.Name,
-                    Bio: movie.Director.Bio
-                },
-                ImagePath: movie.ImagePath,
-                Featured: movie.Featured
-            });
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Error: ' + error);
+app.get('/movies/:title', async (req, res) => {
+    const { title } = req.params;
+    try {
+        const movie = await Movies.findOne({ Title: title })
+            .populate('Genre', 'Name Description')
+            .populate('Director', 'Name Bio');
+        if (!movie) {
+            return res.status(404).json({ message: 'Movie not found' });
         }
-    });
+        res.json({
+            Title: movie.Title,
+            id: movie._id,
+            Description: movie.Description,
+            Genre: {
+                Name: movie.Genre.Name,
+                Description: movie.Genre.Description
+            },
+            Director: {
+                Name: movie.Director.Name,
+                Bio: movie.Director.Bio
+            },
+            ImagePath: movie.ImagePath,
+            Featured: movie.Featured
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+    }
+});
 
 app.get('/genres/:name', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
@@ -189,15 +187,15 @@ app.get('/users/:Username', passport.authenticate('jwt', { session: false }),
             });
     });
 
-app.get('/users/:Username/favorites', passport.authenticate('jwt', { session: false}),
-    async (req,res) => {
-        if(req.user.Username !==req.params.Username) {
+app.get('/users/:Username/favorites', passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
+        if (req.user.Username !== req.params.Username) {
             return res.status(400).send('Permission denied');
         }
         try {
-            const user = await Users.findOne({ Username: req.params.Username}).populate('FavoriteMovies');
-            if(!user) {
-                return res.status(400).json({ message: 'User not Found'});
+            const user = await Users.findOne({ Username: req.params.Username }).populate('FavoriteMovies');
+            if (!user) {
+                return res.status(400).json({ message: 'User not Found' });
             }
             const favoriteMovies = user.FavoriteMovies.map(movie => ({
                 Title: movie.Title,
@@ -217,7 +215,7 @@ app.get('/users/:Username/favorites', passport.authenticate('jwt', { session: fa
             res.json(favoriteMovies);
         } catch (error) {
             console.error(error);
-            res.status(500).send('Error: ' +error);
+            res.status(500).send('Error: ' + error);
         }
     });
 
@@ -247,45 +245,45 @@ app.get('/users', passport.authenticate('jwt', { session: false }),
         }
     });
 
-app.post('/users', 
-  [
-    check('Username', 'Username is required').isLength({min: 5}),
-    check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric('en-US', {ignore: ' '}),
-    check('Password', 'Password is required').not().isEmpty(),
-    check('Email', 'Email does not appear to be valid').isEmail()
-  ], async (req, res) => {
-    let errors = validationResult(req);
+app.post('/users',
+    [
+        check('Username', 'Username is required').isLength({ min: 5 }),
+        check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric('en-US', { ignore: ' ' }),
+        check('Password', 'Password is required').not().isEmpty(),
+        check('Email', 'Email does not appear to be valid').isEmail()
+    ], async (req, res) => {
+        let errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
-    let hashedPassword = Users.hashPassword(req.body.Password);
-    await Users.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
-      .then((user) => {
-        if (user) {
-          //If the user is found, send a response that it already exists
-          return res.status(400).send(req.body.Username + ' already exists');
-        } else {
-          Users
-            .create({
-              Username: req.body.Username,
-              Password: hashedPassword,
-              Email: req.body.Email,
-              Birthday: req.body.Birthday
-            })
-            .then((user) => { res.status(201).json(user) })
-            .catch((error) => {
-              console.error(error);
-              res.status(500).send('Error: ' + error);
-            });
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
         }
-      })
-      .catch((error) => {
-        console.error(error);
-        res.status(500).send('Error: ' + error);
-      });
-  });
+
+        let hashedPassword = Users.hashPassword(req.body.Password);
+        await Users.findOne({ Username: req.body.Username }) // Search to see if a user with the requested username already exists
+            .then((user) => {
+                if (user) {
+                    //If the user is found, send a response that it already exists
+                    return res.status(400).send(req.body.Username + ' already exists');
+                } else {
+                    Users
+                        .create({
+                            Username: req.body.Username,
+                            Password: hashedPassword,
+                            Email: req.body.Email,
+                            Birthday: req.body.Birthday
+                        })
+                        .then((user) => { res.status(201).json(user) })
+                        .catch((error) => {
+                            console.error(error);
+                            res.status(500).send('Error: ' + error);
+                        });
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                res.status(500).send('Error: ' + error);
+            });
+    });
 
 app.post('/users/:Username/favorites/:MovieTitle', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
@@ -307,7 +305,7 @@ app.post('/users/:Username/favorites/:MovieTitle', passport.authenticate('jwt', 
             }
             user.FavoriteMovies.push(movie._id);
             await user.save();
-            const movieDetails = await Movies.findById(movie._id, 'Title'); 
+            const movieDetails = await Movies.findById(movie._id, 'Title');
             res.json({ message: `Movie '${movieDetails.Title}' added to favorites successfully` });
         } catch (error) {
             console.error(error);
