@@ -43,7 +43,7 @@ app.get('/', (req, res) => {
     res.send('Welcome to my movie API!');
 });
 
-app.get('/movies', passport.authenticate('jwt', { session: false }),
+app.get('/movies',
     async (req, res) => {
         try {
             const movies = await Movies.find({}, 'Title Description Genere Director ImagePath Featured')
