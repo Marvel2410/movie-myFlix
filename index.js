@@ -43,55 +43,57 @@ app.get('/', (req, res) => {
     res.send('Welcome to my movie API!');
 });
 
-app.get('/movies', async (req, res) => {
-    try {
-        const movies = await Movies.find({}, 'Title Description Genere Director ImagePath Featured')
-            .populate('Genre', 'Name')
-            .populate('Director', 'Name');
-        res.status(201).json(movies.map(movie => ({
-            Title: movie.Title,
-            id: movie._id,
-            Description: movie.Description,
-            Genre: movie.Genre.Name,
-            Director: movie.Director.Name,
-            ImagePath: movie.ImagePath,
-            Featured: movie.Featured
-        })));
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error: ' + error);
-    }
-});
-
-app.get('/movies/:title', async (req, res) => {
-    const { title } = req.params;
-    try {
-        const movie = await Movies.findOne({ Title: title })
-            .populate('Genre', 'Name Description')
-            .populate('Director', 'Name Bio');
-        if (!movie) {
-            return res.status(404).json({ message: 'Movie not found' });
+app.get('/movies', passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
+        try {
+            const movies = await Movies.find({}, 'Title Description Genere Director ImagePath Featured')
+                .populate('Genre', 'Name')
+                .populate('Director', 'Name');
+            res.status(201).json(movies.map(movie => ({
+                Title: movie.Title,
+                id: movie._id,
+                Description: movie.Description,
+                Genre: movie.Genre.Name,
+                Director: movie.Director.Name,
+                ImagePath: movie.ImagePath,
+                Featured: movie.Featured
+            })));
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
         }
-        res.json({
-            Title: movie.Title,
-            id: movie._id,
-            Description: movie.Description,
-            Genre: {
-                Name: movie.Genre.Name,
-                Description: movie.Genre.Description
-            },
-            Director: {
-                Name: movie.Director.Name,
-                Bio: movie.Director.Bio
-            },
-            ImagePath: movie.ImagePath,
-            Featured: movie.Featured
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error: ' + error);
-    }
-});
+    });
+
+app.get('/movies/:title', passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
+        const { title } = req.params;
+        try {
+            const movie = await Movies.findOne({ Title: title })
+                .populate('Genre', 'Name Description')
+                .populate('Director', 'Name Bio');
+            if (!movie) {
+                return res.status(404).json({ message: 'Movie not found' });
+            }
+            res.json({
+                Title: movie.Title,
+                id: movie._id,
+                Description: movie.Description,
+                Genre: {
+                    Name: movie.Genre.Name,
+                    Description: movie.Genre.Description
+                },
+                Director: {
+                    Name: movie.Director.Name,
+                    Bio: movie.Director.Bio
+                },
+                ImagePath: movie.ImagePath,
+                Featured: movie.Featured
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Error: ' + error);
+        }
+    });
 
 app.get('/genres/:name', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
