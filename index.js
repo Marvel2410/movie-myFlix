@@ -27,7 +27,7 @@ require('./passport');
 app.use(express.static('public'));
 
 
-let allowedOrigins = ['http://localhost:8080', 'http://testsite.com', 'http://localhost:1234', 'https://whimsical-daifuku-20d479.netlify.app'];
+let allowedOrigins = ['http://localhost:8080', 'http://testsite.com', 'http://localhost:1234', 'https://manualmyflix.netlify.app'];
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin) return callback(null, true);
