@@ -27,7 +27,7 @@ require('./passport');
 app.use(express.static('public'));
 
 
-let allowedOrigins = ['http://localhost:8080',
+let allowedOrigins = ['http://localhost:8080', 'https://marvel2410.github.io/flixList-Angular/',
     'https://marvel2410.github.io/myflix-angular-client/',
     'http://testsite.com',
     'http://localhost:1234',
