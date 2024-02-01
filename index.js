@@ -28,6 +28,7 @@ app.use(express.static('public'));
 
 
 let allowedOrigins = [
+    'https://marvel2410.github.io/flixList-Angular-app/',
     'http://localhost:8080',
     'https://marvel2410.github.io/myflix-angular-client/',
     'http://testsite.com',
@@ -36,7 +37,7 @@ let allowedOrigins = [
     'http://localhost:4200',
     'https://marvel2410.github.io/flixList-Angular/',
     'https://marvel2410.github.io/flixList-Angular/movies',
-    'https://marvel2410.github.io/flixList-Angular/welcome'
+    'https://marvel2410.github.io/flixList-Angular/welcome',
 
 ];
 app.use(cors({
