@@ -31,6 +31,8 @@ let allowedOrigins = [
     'https://marvel2410.github.io/flixList-Angular-app/',
     'http://localhost:8080',
     'https://marvel2410.github.io/myflix-angular-client/',
+    'https://marvel2410.github.io/myflix-angular-client/welcome',
+    'https://marvel2410.github.io/myflix-angular-client/movies',
     'http://testsite.com',
     'http://localhost:1234',
     'https://dudasnewmyflixapp.netlify.app',
