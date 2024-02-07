@@ -331,31 +331,42 @@ app.post('/users/:Username/favorites/:MovieTitle', passport.authenticate('jwt', 
         }
     });
 
-app.put('/users/:Username', passport.authenticate('jwt', { session: false }),
-    async (req, res) => {
-        if (req.user.Username !== req.params.Username) {
-            return res.status(400).send('Permission denied');
-        }
-        let hashedPassword = await Users.hashPassword(req.body.Password);
+app.put('/users/:Username', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    // CONDITION TO CHECK ADDED HERE
+    if (req.user.Username !== req.params.Username) {
+        return res.status(400).send('Permission denied');
+    }
+    // CONDITION ENDS
 
-        await Users.findOneAndUpdate({ Username: req.params.Username }, {
-            $set:
-            {
-                Username: req.body.Username,
-                Password: hashedPassword,
-                Email: req.body.Email,
-                Birthday: req.body.Birthday
-            }
-        },
-            { new: true })
-            .then((updatedUser) => {
-                res.json(updatedUser);
-            })
-            .catch((err) => {
-                console.log(err);
-                res.status(500).send('Error: ' + err);
-            })
-    });
+    try {
+        const updatedFields = {};
+        // Check if each field is provided in the request body and update it accordingly
+        if (req.body.Username) updatedFields.Username = req.body.Username;
+        if (req.body.Password) {
+            const hashedPassword = await Users.hashPassword(req.body.Password);
+            updatedFields.Password = hashedPassword;
+        }
+        if (req.body.Email) updatedFields.Email = req.body.Email;
+        if (req.body.Birthday) updatedFields.Birthday = req.body.Birthday;
+
+        const updatedUser = await Users.findOneAndUpdate(
+            { Username: req.params.Username },
+            { $set: updatedFields },
+            { new: true }
+        );
+
+        // Check if the user was found and updated successfully
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(updatedUser);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+    }
+});
+
 
 app.delete('/users/:Username/favorites/:MovieTitle', passport.authenticate('jwt', { session: false }),
     async (req, res) => {
