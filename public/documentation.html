@@ -4,27 +4,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Favorite Movies</title>
+  <title>My Favorite Movies API</title>
 </head>
 
 <body>
-  <h1>
-    Favorite Movies App
-  </h1>
+  <h1>Favorite Movies API</h1>
   <p>
-    Building a server-side component of a "movies" web aplication. The Web appilcation will provide users
-    with access to information about some of my favorite movies, directors, and plots. Users will be able to
-    sign up, update their personal information, and create a list of their own favorite movies.
+    This API provides access to information about favorite movies, directors, and plots. Users can sign up, update their
+    personal information, and create a list of their favorite movies.
   </p>
+
   <h2>API Endpoints</h2>
 
-
-  <h3> 1. Signup </h3>
-  <p>
-    <strong>Endpoint:</strong> POST /users
-  </p>
-  <p>Registers a new user account</p>
-  <p><strong>Example Request Body:</strong></p>
+  <h3>1. Signup</h3>
+  <p><strong>Endpoint:</strong> POST /users</p>
+  <p>Registers a new user account.</p>
   <pre>
 {
     "Username": "newUser",
@@ -33,6 +27,7 @@
     "Birthday": "1990-01-01"
 }
 </pre>
+
   <p><strong>Sample Response:</strong></p>
   <pre>
     {
@@ -44,12 +39,9 @@
     }
 </pre>
 
-  <h3> 2. Login </h3>
-  <p>
-    <strong>Endpoint:</strong> POST /login
-  </p>
-  <p> Logs in an existing user.</p>
-  <p><strong>Example Request Into Params:</strong></p>
+  <h3>2. Login</h3>
+  <p><strong>Endpoint:</strong> POST /login</p>
+  <p>Logs in an existing user.</p>
   <pre>
     {
         KEY: Username VALUE: existingUser
@@ -74,12 +66,9 @@
     }
 </pre>
 
-  <h3> 3. View Movies </h3>
-  <p>
-    <strong>Endpoint:</strong> GET /movies
-  </p>
-  <p> Shows all movies and information within database</p>
-  <p><strong>Sample Response:</strong></p>
+  <h3>3. View Movies</h3>
+  <p><strong>Endpoint:</strong> GET /movies</p>
+  <p>Shows all movies and information within the database.</p>
   <pre>
     {
         "Title": "Movie 1",
@@ -89,7 +78,7 @@
         "Director": "Director Name",
         "ImagePath": "path/to/image",
         "Featured": true/false
-    }
+    },
     {
     "Title": "Movie 2",
     "id": "generatedId2"
@@ -99,16 +88,10 @@
     "ImagePath": "path/to/image",
     "Featured": true/false
 }
-...etc.
-
 </pre>
 
-  <h3>4. View a specific movie's details</h3>
-  <p>
-    <strong>Endpoint:</strong> GET /movies/Movietitle
-  </p>
-  <p>
-    <strong>Sample Response:</strong>
+  <h3>4. View a Specific Movie's Details</h3>
+  <p><strong>Endpoint:</strong> GET /movies/{MovieTitle}</p>
   <pre>
             {
                 Title: Movie 1,
@@ -126,30 +109,22 @@
                 Featured: true/false
             }
             ...etc
-            </pre>
-  </p>
+  </pre>
 
-  <h3>5. Add a movie to your favorites</h3>
-  <p>
-    <strong>Endpoint</strong> POST /users/{Username}/favorites/MovieTitletoaddtofavorites
-  </p>
-  <p>
-    This endpoint allows users to add a movie to their list of favorites movies
-  </p>
-  <p>
-    <strong>Example Request:</strong>
-  </p>
+
+  <h3>5. Add a Movie to Favorites</h3>
+  <p><strong>Endpoint:</strong> POST /users/{Username}/favorites/{MovieTitleToAdd}</p>
+  <p>This endpoint allows users to add a movie to their list of favorite movies.</p>
   <pre>
       {
-        /favorites/movietitletoadd
+        "Favorites": ["Movie Title 1", "Movie Title 2", ...]
       }  
     </pre>
 
 
   <h3>6. View Favorite Movies</h3>
-  <p><strong>Endpoint: </strong> GET /users/{Username}/favorites</p>
+  <p><strong>Endpoint:</strong> GET /users/{Username}/favorites</p>
   <p>Returns a list of favorite movies for a specific user.</p>
-  <p><strong>Sample Response:</strong></p>
   <pre>
         {
             Title: Movie 1,
@@ -167,25 +142,26 @@
         ...etc
     </pre>
 
-  <h3> 7. Remove movie from favorites</h3>
-  <p><strong>Enpoint:</strong> DELETE /users/Username/favorites/movietitle</p>
+  <h3>7. Remove Movie from Favorites</h3>
+  <p><strong>Endpoint:</strong> DELETE /users/{Username}/favorites/{MovieTitle}</p>
   <p>Removes a movie from the list of favorite movies for a user.</p>
-  <p><strong>Sample Response:</strong></p>
   <pre>
-{ message: Movie 'title' removed from favorites sucessfully}
+      {
+        "Favorites": ["Movie Title 1", "Movie Title 2", ...]
+    }
     </pre>
 
-  <h3> 8. Change/Update profile data (name/email/etc) </h3>
-  <p><strong>Enpoint:</strong> PUT /users/Username</p>
-  <p> Allows a user to update their profile information</p>
-  <p><strong>Example Request Body:</strong></p>
+
+  <h3>8. Update Profile Data</h3>
+  <p><strong>Endpoint:</strong> PUT /users/{Username}</p>
+  <p>Allows a user to update their profile information.</p>
   <pre>
-        {
+      {
         "Username": "NewUsername",
         "Password": "NewPassword",
         "Email": "newemail@email.com",
         "Birthday": "YYYY-MM-DD"
-        }
+      }
     </pre>
   <p><strong>Sample Response:</strong>Based on what you changed/updated</p>
   <pre>
@@ -196,8 +172,7 @@
     "FavoriteMovies": [...]
     ...etc.
     }
-    </pre>
-
+  </pre>
 </body>
 
 </html>
